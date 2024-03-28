@@ -19,3 +19,9 @@ Let’s break down the command and understand it:
 * `-sOutputFile=output-%03d.jpeg`: This specifies the output file pattern. %03d indicates that the page number will be zero-padded to three digits. So, the output files will be named output-001.jpeg, output-002.jpeg, etc.
 * `input.pdf`: The name of the input PDF file to convert.
 * `-c quit`: This flag tells Ghostscript to quit after processing the PDF.
+
+## Extract text from pdf images
+```
+ls output*.jpg > images.txt
+tesseract images.txt output.txt
+```
