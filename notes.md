@@ -25,3 +25,13 @@ Let’s break down the command and understand it:
 ls output*.jpg > images.txt
 tesseract images.txt output.txt
 ```
+
+## Download youtube videos using yt-dlp
+Download a single video in 720p resolution and mp4 format
+```
+yt-dlp [link_to_video] -f mp4 -S "res:720"
+```
+Download all videos from a playlist in 720p resolution and mp4 format
+```
+yt-dlp --yes-playlist [link_to_playlist] -f mp4 -S "res:720"
+```
