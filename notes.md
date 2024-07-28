@@ -35,3 +35,23 @@ Download all videos from a playlist in 720p resolution and mp4 format
 ```
 yt-dlp --yes-playlist [link_to_playlist] -f mp4 -S "res:720"
 ```
+## Concatenating media files
+There are two methods within ffmpeg that can be used to concatenate files of the same type:
+- the concat ''demuxer''
+- the concat ''protocol''
+The demuxer is more flexible – it requires the same codecs, but different container formats can be used; and it can be used with any container formats, while the protocol only works with a select few containers.
+### Concat demuxer
+This demuxer reads a list of files and other directives from a text file and demuxes them one after the other, as if all their packets had been muxed together. All files must have the same streams (same codecs, same time base, etc.) but can be wrapped in different container formats.
+#### Instructions
+Create a file `mylist.txt` with all the files you want to have concatenated in the following form (lines starting with a `#` are ignored):
+
+```# this is a comment
+file '/path/to/file1.wav'
+file '/path/to/file2.wav'
+file '/path/to/file3.wav'
+```
+Note that these can be either relative or absolute paths. Then you can stream copy or re-encode your files:
+```
+ffmpeg -f concat -safe 0 -i mylist.txt -c copy output.wav
+```
+The `-safe 0` above is not required if the paths are relative.
