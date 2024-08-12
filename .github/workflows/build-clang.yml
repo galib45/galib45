@@ -31,7 +31,7 @@ jobs:
             -DLLVM_TARGETS_TO_BUILD="host" \
             -DCMAKE_BUILD_TYPE=Release \
             -DLLVM_ENABLE_LTO=Thin \
-            ../llvm
+            llvm
           ninja
 
       - name: Upload Clang binaries
