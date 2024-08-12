@@ -1,0 +1,41 @@
+name: Build Clang
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up LLVM
+        uses: llvm/llvm-project@main
+        with:
+          # You can specify the LLVM version here
+          llvm-version: '15.0.7'  # Adjust to the desired version
+
+      - name: Build LLVM and Clang
+        run: |
+          mkdir build
+          cd build
+          cmake -G "Ninja" \
+            -DLLVM_ENABLE_PROJECTS="clang;compiler-rt;libcxx;libcxxabi" \
+            -DLLVM_TARGETS_TO_BUILD="host" \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DLLVM_ENABLE_LTO=Thin \
+            ../llvm
+          ninja
+
+      # - name: Install Clang
+      #   run: |
+      #     sudo cp -r bin/clang* /usr/local/bin/
+      #     sudo cp -r lib/clang /usr/local/lib/
+      #     sudo cp -r include/clang /usr/local/include/
