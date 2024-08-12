@@ -1,4 +1,4 @@
-name: Build Clang
+name: Build Clang and LLVM
 
 on:
   push:
@@ -16,11 +16,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up LLVM
-        uses: llvm/llvm-project@main
-        with:
-          # You can specify the LLVM version here
-          llvm-version: '15.0.7'  # Adjust to the desired version
+      - name: Set up LLVM source
+        run: |
+          git clone https://github.com/llvm/llvm-project.git
+          cd llvm-project
+          git checkout main  # Or specify a version/tag/branch
 
       - name: Build LLVM and Clang
         run: |
@@ -34,8 +34,11 @@ jobs:
             ../llvm
           ninja
 
-      # - name: Install Clang
-      #   run: |
-      #     sudo cp -r bin/clang* /usr/local/bin/
-      #     sudo cp -r lib/clang /usr/local/lib/
-      #     sudo cp -r include/clang /usr/local/include/
+      - name: Upload Clang binaries
+        uses: actions/upload-artifact@v3
+        with:
+          name: clang-binaries
+          path: |
+            build/bin/clang*
+            build/lib/clang
+            build/include/clang
