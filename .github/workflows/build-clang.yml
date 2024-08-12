@@ -21,9 +21,9 @@ jobs:
 
       - name: Set up LLVM source
         run: |
-          git clone https://github.com/llvm/llvm-project.git
+          git clone --depth=1 https://github.com/llvm/llvm-project.git
           cd llvm-project
-          git checkout main  # Or specify a version/tag/branch
+          # git checkout main  # Or specify a version/tag/branch
 
       - name: Build LLVM and Clang
         run: |
