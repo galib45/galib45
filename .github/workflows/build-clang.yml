@@ -35,10 +35,10 @@ jobs:
             -DLLVM_ENABLE_PROJECTS="clang;lld" \
             -DLLVM_TARGETS_TO_BUILD="X86" \
             -DCMAKE_BUILD_TYPE=Release \
-            -DLLVM_BUILD_TOOLS=OFF
+            -DLLVM_BUILD_TOOLS=OFF \
             -DLLVM_ENABLE_LTO=Full \
             ../llvm-project/llvm
-          ninja
+          ninja -j $(nprocs)
 
       - name: Upload Clang binaries
         uses: actions/upload-artifact@v3
