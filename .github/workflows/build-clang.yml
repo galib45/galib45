@@ -38,7 +38,7 @@ jobs:
             -DLLVM_BUILD_TOOLS=OFF \
             -DLLVM_ENABLE_LTO=Full \
             ../llvm-project/llvm
-          ninja -j $(nprocs)
+          ninja -j $(nproc)
 
       - name: Upload Clang binaries
         uses: actions/upload-artifact@v3
