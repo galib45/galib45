@@ -1,4 +1,4 @@
-name: Build LLVM, Clang, and LLD
+name: Build Clang and LLVM
 
 on:
   push:
@@ -9,111 +9,42 @@ on:
       - main
 
 jobs:
-  setup:
+  build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ninja-build cmake xz-utils ccache
+      - name: Install Ninja
+        run: sudo apt-get update && sudo apt-get install -y ninja-build
 
       - name: Set up LLVM source
         run: |
           git clone --depth=1 https://github.com/llvm/llvm-project.git
+          # cd llvm-project
+          # git checkout main  # Or specify a version/tag/branch
 
-  build-core:
-    runs-on: ubuntu-latest
-    needs: setup
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Cache LLVM core build
-        uses: actions/cache@v3
-        with:
-          path: build-core
-          key: ${{ runner.os }}-llvm-core-${{ hashFiles('**/CMakeLists.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-llvm-core-
-
-      - name: Build LLVM Core
+      - name: Build LLVM and Clang
         run: |
-          mkdir -p build-core
-          cd build-core
-          cmake -G "Ninja" \
-            -DLLVM_ENABLE_PROJECTS="" \
-            -DCMAKE_BUILD_TYPE=Release \
-            ../llvm-project/llvm
-          ninja -j $(nprocs)
-
-  build-clang:
-    runs-on: ubuntu-latest
-    needs: build-core
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Cache Clang build
-        uses: actions/cache@v3
-        with:
-          path: build-clang
-          key: ${{ runner.os }}-clang-${{ hashFiles('**/CMakeLists.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-clang-
-
-      - name: Build Clang
-        run: |
-          mkdir -p build-clang
-          cd build-clang
+          mkdir build
+          cd build
           cmake -G "Ninja" \
             -DCMAKE_C_COMPILER=clang \
             -DCMAKE_CXX_COMPILER=clang++ \
-            -DLLVM_ENABLE_PROJECTS="clang" \
+            -DLLVM_ENABLE_PROJECTS="clang;lld" \
+            -DLLVM_TARGETS_TO_BUILD="X86" \
             -DCMAKE_BUILD_TYPE=Release \
+            -DLLVM_BUILD_TOOLS=OFF
+            -DLLVM_ENABLE_LTO=Full \
             ../llvm-project/llvm
-          ninja -j $(nprocs)
+          ninja
 
-  build-lld:
-    runs-on: ubuntu-latest
-    needs: build-core
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Cache LLD build
-        uses: actions/cache@v3
-        with:
-          path: build-lld
-          key: ${{ runner.os }}-lld-${{ hashFiles('**/CMakeLists.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-lld-
-
-      - name: Build LLD
-        run: |
-          mkdir -p build-lld
-          cd build-lld
-          cmake -G "Ninja" \
-            -DCMAKE_C_COMPILER=clang \
-            -DCMAKE_CXX_COMPILER=clang++ \
-            -DLLVM_ENABLE_PROJECTS="lld" \
-            -DCMAKE_BUILD_TYPE=Release \
-            ../llvm-project/llvm
-          ninja -j $(nprocs)
-
-  compress-and-upload:
-    runs-on: ubuntu-latest
-    needs: [build-clang, build-lld]
-    steps:
-      - name: Compress and upload build artifacts
-        run: |
-          tar -cf build-artifacts.tar build-core build-clang build-lld
-          xz -z build-artifacts.tar
-
-      - name: Upload build artifacts
+      - name: Upload Clang binaries
         uses: actions/upload-artifact@v3
         with:
-          name: llvm-binaries
-          path: build-artifacts.tar.xz
+          name: clang-binaries
+          path: |
+            build/bin
+            build/lib
+            build/include
