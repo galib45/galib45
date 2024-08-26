@@ -7,7 +7,7 @@ set -o errtrace
 # Download llvm source from github
 aria2c -x 16 -s 16 https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.8/llvm-project-18.1.8.src.tar.xz
 mkdir -p llvm-project
-tar Jxvf llvm-project-18.1.8.src.tar.xz -C llvm-project --strip-components=1
+tar Jxf llvm-project-18.1.8.src.tar.xz -C llvm-project --strip-components=1
 
 cd llvm-project
 
