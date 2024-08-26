@@ -16,6 +16,7 @@ jobs:
       - name: Build
         shell: bash
         run: |
+          ls -la
           ./build.sh
       
       - name: Inspect
