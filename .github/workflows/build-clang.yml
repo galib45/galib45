@@ -16,7 +16,7 @@ jobs:
       - name: Build
         shell: bash
         run: |
-          ./build-clang.sh
+          bash ./build-clang.sh
       
       - name: Inspect
         shell: bash
