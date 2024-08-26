@@ -1,12 +1,6 @@
 name: Build Clang and LLVM
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+on: [push]
 
 jobs:
   build:
@@ -16,39 +10,31 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install Ninja
-        run: sudo apt-get update && sudo apt-get install -y ninja-build xz-utils
+      - name: Install Ninja & Aria2
+        run: sudo apt-get update && sudo apt-get install -y ninja-build aria2
 
-      - name: Set up LLVM source
+      - name: Build
+        shell: bash
         run: |
-          git clone --depth=1 https://github.com/llvm/llvm-project.git
-          # cd llvm-project
-          # git checkout main  # Or specify a version/tag/branch
-
-      - name: Build LLVM and Clang
+          ./build.sh
+      
+      - name: Inspect
+        shell: bash
         run: |
-          mkdir build
-          cd build
-          cmake -G "Ninja" \
-            -DCMAKE_C_COMPILER=clang \
-            -DCMAKE_CXX_COMPILER=clang++ \
-            -DLLVM_ENABLE_PROJECTS="clang;lld" \
-            -DLLVM_TARGETS_TO_BUILD="X86" \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DLLVM_BUILD_TOOLS=OFF \
-            -DLLVM_ENABLE_RUNTIMES="compiler-rt" \
-            -DLLVM_ENABLE_LTO=Full \
-            ../llvm-project/llvm
-          ninja -j $(nproc)
+          PATH=llvm-project/build/destdir/bin:llvm-project/build/destdir/usr/bin:$PATH llvm-config --version
+          PATH=llvm-project/build/destdir/bin:llvm-project/build/destdir/usr/bin:$PATH clang --version
 
-      - name: Compress build artifacts
+      - name: Zip
+        shell: bash
         run: |
-          # Create a tarball and compress it with xz for better compression
-          tar -cf build-artifacts.tar build/bin build/lib build/include
-          xz -z build-artifacts.tar
+          mkdir -p dist
+          tar --directory llvm-project/build/destdir --create --xz --verbose --file dist/llvm.tar.xz .
+          ls -lh dist/llvm.tar.xz
 
-      - name: Upload Clang binaries
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: clang-binaries
-          path: build-artifacts.tar.xz
+          name: llvm-linux-amd64
+          path: dist
+          if-no-files-found: error
+          retention-days: 1
