@@ -12,7 +12,16 @@ jobs:
 
       - name: Install Ninja & Aria2
         run: sudo apt-get update && sudo apt-get install -y ninja-build aria2
-
+      
+      - name: Cache LLVM build directory
+        id: cache-llvm
+        uses: actions/cache@v3
+        with:
+          path: build/
+          key: ${{ runner.os }}-llvm-build-${{ hashFiles('**/CMakeLists.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-llvm-build-
+      
       - name: Build
         shell: bash
         run: |
