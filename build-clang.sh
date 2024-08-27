@@ -24,8 +24,9 @@ cmake \
   -G Ninja \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_INSTALL_PREFIX="/" \
-  -DCMAKE_C_COMPILER="clang -static" \
-  -DCMAKE_CXX_COMPILER="clang++ -static" \
+  -DCMAKE_C_COMPILER="clang" \
+  -DCMAKE_CXX_COMPILER="clang++" \
+  -DCMAKE_EXE_LINKER_FLAGS="-static" \
   -DLLVM_USE_LINKER=lld \
   -DLLVM_ENABLE_PROJECTS="clang;lld" \
   -DLLVM_ENABLE_TERMINFO=OFF \
