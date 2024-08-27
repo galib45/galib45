@@ -13,6 +13,9 @@ jobs:
       - name: Install Ninja & Aria2
         run: sudo apt-get update && sudo apt-get install -y ninja-build aria2
       
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+      
       - name: Cache LLVM build directory
         id: cache-llvm
         uses: actions/cache@v3
